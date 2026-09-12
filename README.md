@@ -118,3 +118,5 @@ python3 -m http.server 8009 --bind 127.0.0.1
 Then open `http://127.0.0.1:8009/task-graph.html`. Before publishing, check English
 and Chinese at desktop and mobile widths, section links, diagram/table scrolling,
 and the entry from `/wiki.html`.
+
+The responsive visual explanations are maintained in `scripts/task_graph_visuals.py`: an expandable conversation timeline, an Attempt decision guide, a Token allocation chart and outcome-state cards. Their text is bilingual; existing SVGs remain available for the wider architecture diagrams.

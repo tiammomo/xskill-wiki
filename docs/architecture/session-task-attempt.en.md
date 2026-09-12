@@ -37,7 +37,7 @@ These objects do not have one-to-one relationships:
 
 ## An end-to-end example
 
-A user asks the assistant to fix a timeout in an order API. The assistant first raises the timeout, but validation still fails. The user then asks it to inspect the connection pool. During the investigation, the user requests a translation before returning to the API problem.
+Consider an ordinary working conversation. The user asks, “Fix the order API timeout.” The assistant raises the timeout, but the test still fails. The user says, “Try the connection pool instead.” Then another request interrupts: “Translate this paragraph first.” Once that is done, they return to the API issue.
 
 This can produce four continuous segments: initial investigation, correction, translation and resumed investigation. They serve two primary goals: resolving the API timeout and completing the translation.
 
@@ -155,7 +155,7 @@ Previously confirmed execution boundaries take precedence over later automatic g
 
 ## Outcomes: completion, success, verification and user feedback
 
-Task outcomes use separate dimensions rather than overloading one boolean.
+The assistant stopped—but is the job done? The tool reported success—but has the user accepted it? These questions need separate answers.
 
 | Dimension | Meaning |
 | --- | --- |

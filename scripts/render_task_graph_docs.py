@@ -4,6 +4,11 @@ import argparse
 import html
 import re
 import markdown
+import sys
+
+# Maintenance rendering must not leave bytecode in the static site.
+sys.dont_write_bytecode = True
+from task_graph_visuals import render_visuals
 
 ROOT = Path(__file__).resolve().parents[1]
 IDS = 'why concepts example evidence atoms linking attempts outcomes recovery usage performance boundaries faq'.split()
@@ -31,6 +36,7 @@ def render():
     nav = ''.join(f'<a href="#{key}">{bilingual(LABELS["en"][i], LABELS["zh"][i])}</a>' for i, key in enumerate(IDS))
     intro = ''.join(render_body(sources[lang][0], lang) for lang in sources)
     sections = []
+    visuals = render_visuals(bilingual)
     figures = {
         'concepts': ('model', 'One session can contribute to several tasks; a task can have several attempts. Arrows illustrate relationships, not a one-to-one conversion.', '一个 Session 可以涉及多个 Task，一个 Task 可以包含多个 Attempt。箭头表示引用关系，并非一对一转换。'),
         'linking': ('flow', 'Normalize and segment evidence before goal linking; group attempts before publishing the graph.', '先规范化并切分证据，再关联用户目标；组织执行尝试后发布任务图。'),
@@ -39,6 +45,8 @@ def render():
     for i, key in enumerate(IDS):
         heading = bilingual(*(sources[lang][1][i][0] for lang in sources))
         body = ''.join(render_body(sources[lang][1][i][1], lang) for lang in sources)
+        if key in visuals:
+            body = visuals[key] + body
         if key in figures:
             name, en, zh = figures[key]
             body += '<figure>'
