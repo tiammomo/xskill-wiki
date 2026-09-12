@@ -138,3 +138,14 @@ html[lang="zh-CN"] [data-doc-lang="en"] { display: none !important; }
   .outcome-grid { grid-template-columns:1fr; }
 }
 @media print { .explain-visual { break-inside:auto; } .story-card details>p { display:block; } }
+
+.reading-paths { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:22px; }
+.reading-paths a { display:flex; flex-direction:column; gap:7px; padding:15px; border:1px solid #cedfd7; border-radius:10px; background:#f8faf6; }
+.reading-paths strong { font-size:15px; line-height:1.5; }
+.reading-paths a>span { font-size:13px; color:#526762; font-weight:400; line-height:1.6; }
+.reading-paths a:hover { background:#e6f2ec; }
+.reading-paths a:focus-visible,.reference-detail summary:focus-visible { outline:3px solid #397b80; outline-offset:3px; }
+.reference-detail { margin:18px 0; border:1px solid #d4e4de; border-radius:10px; padding:12px 14px; }
+.reference-detail summary { cursor:pointer; font-size:14px; font-weight:700; color:#285e5a; }
+.reference-detail .task-table { margin-bottom:0; }
+@media(max-width:650px) { .reading-paths { grid-template-columns:1fr; } }

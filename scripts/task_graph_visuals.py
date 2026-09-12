@@ -16,11 +16,11 @@ def render_visuals(b):
         timeline += f'<li class="{cls}"><span class="story-dot">{n}</span><div class="story-card"><div class="story-top"><strong>{b(en,zh)}</strong><span class="goal-tag">{b(te,tz)}</span></div><p class="story-quote">{b(qe,qz)}</p><p>{b(de,dz)}</p><details><summary>{b("Why this grouping?", "为什么这样分？")}</summary><p>{b(xe,xz)}</p></details></div></li>'
     timeline += '</ol><p class="visual-footnote">' + b('Illustrative grouping: goal links and correction signals are assumed confirmed. A return to a goal does not by itself prove the same execution continued.', '示例假设目标关联与纠正信号已获确认。回到同一个目标，并不单独证明仍是同一次执行。') + '</p>'
 
-    decision = head('02', 'Same goal. Same execution?', '目标一样，还是同一次执行吗？', 'Check goal ownership first, then examine the execution evidence.', '先确认属于哪个 Task，再看这次执行与之前是什么关系。')
+    decision = head('02', 'Same goal. Same execution?', '目标一样，还是同一次执行吗？', 'Preserve confirmed historical boundaries. For evidence that needs grouping, confirm its Task, then check for a restart before continuity.', '先保留已确认的历史边界。对需要分组的新证据，确认 Task 后先看是否重试或纠正，再判断能否延续。')
     decision += '<div class="decision-entry">' + b('Starting point: evidence already belongs to a confirmed Task', '起点：这段证据已有确认的 Task 归属') + '</div><div class="decision-grid">'
     branches = [
         ('↻', 'A retry or correction', '明确重试或纠正', 'Create a new Attempt', '新建 Attempt', 'Keep retry_of or correction_of, so the earlier attempt stays traceable.', '用 retry_of 或 correction_of 连回之前的尝试，保留失败和改法的经过。'),
-        ('→', 'Evidence of continuity', '有执行连续性证据', 'May keep the same Attempt', '可以沿用 Attempt', 'Consider original adjacency, a stable run identity and confirmed history together.', '结合原始相邻关系、稳定运行身份及已确认历史一起判断。'),
+        ('→', 'No restart; continuity is supported', '没有重启信号，且证据支持连续', 'May keep the same Attempt', '可以沿用 Attempt', 'After excluding an explicit retry or correction, consider original adjacency and a stable run identity together.', '先排除明确重试或纠正，再结合原始相邻关系与稳定运行身份判断。'),
         ('?', 'Continuity is unclear', '还不能确定是否连续', 'Keep a separate Attempt', '先保留独立 Attempt', 'Retain a proposed continuation instead of silently combining executions.', '保留待确认的 continuation_of，等证据足够再确认关系。'),
     ]
     for symbol,en,zh,re,rz,de,dz in branches:
@@ -36,11 +36,11 @@ def render_visuals(b):
         usage += '<li><span>'+b(en,zh)+'</span><strong>'+value+'</strong></li>'
     usage += '</ol><p class="visual-footnote">' + b('The bar shows allocated shares, not measured usage per Attempt. The formulas below explain the calculation and its boundaries.', '条形图展示分摊结果，并非逐次执行的实测用量。下面的公式说明算法与适用范围。') + '</p>'
 
-    outcome = head('03', '“Finished” answers only one question', '“执行结束”只回答了一个问题', 'Example: the tool reports success, but verification and user acceptance are still missing.', '例如：工具报告成功，但还没有核验证据，也没有用户验收。')
+    outcome = head('03', '“Finished” answers only one question', '“执行结束”只回答了一个问题', 'Example: a session contains one Task and its harness reports a structured successful end. Goal verification and user acceptance are still missing.', '例子：会话只涉及一个 Task，运行环境提供了结构化的成功终态，但还没有目标核验和用户验收。')
     outcome += '<div class="outcome-grid">'
     for en,zh,ve,vz,de,dz in [
         ('Lifecycle','执行状态','Ended','已结束','The run has stopped.','这次运行已经停止。'),
-        ('Reported result','来源报告','Success','成功','This is the tool’s report.','这是工具给出的结论。'),
+        ('Reported result','来源报告','Success','成功','This is the harness’s structured report.','这是运行环境的结构化报告。'),
         ('Verification','目标核验','Unverified','未验证','Supporting checks are missing.','还缺少对应目标的核验证据。'),
         ('User feedback','用户反馈','Unknown','未知','No acceptance has been recorded.','还没有收到用户确认。')]:
         outcome += '<div><span class="outcome-label">'+b(en,zh)+'</span><strong>'+b(ve,vz)+'</strong><p>'+b(de,dz)+'</p></div>'

@@ -20,10 +20,22 @@ LABELS = {
 def bilingual(en, zh):
     return f'<span data-doc-lang="en">{html.escape(en)}</span><span data-doc-lang="zh">{html.escape(zh)}</span>'
 
-def render_body(text, lang):
+def render_body(text, lang, section=None):
     rendered = markdown.markdown(text, extensions=['tables', 'fenced_code'])
     label = 'Scrollable reference table' if lang == 'en' else '可横向滚动的参考表格'
     rendered = rendered.replace('<table>', f'<div class="task-table" tabindex="0" role="region" aria-label="{label}"><table class="doc-table">').replace('</table>', '</table></div>')
+    # The chart already explains these tables; keep the exact comparison on demand.
+    if section in ('example', 'usage'):
+        captions = {
+            'example': {'en': 'View the segment-to-goal comparison', 'zh': '查看片段与目标的对照表'},
+            'usage': {'en': 'View the allocation calculation table', 'zh': '查看逐步分摊的计算表'},
+        }
+        rendered = re.sub(
+            r'(<div class="task-table".*?</table></div>)',
+            lambda match: '<details class="reference-detail"><summary>'
+            + captions[section][lang] + '</summary>' + match.group(1) + '</details>',
+            rendered, flags=re.S,
+        )
     return f'<div data-doc-lang="{lang}">{rendered}</div>'
 
 def render():
@@ -35,6 +47,15 @@ def render():
         sources[lang] = (intro.split('\n', 1)[1], [part.split('\n', 1) for part in parts])
     nav = ''.join(f'<a href="#{key}">{bilingual(LABELS["en"][i], LABELS["zh"][i])}</a>' for i, key in enumerate(IDS))
     intro = ''.join(render_body(sources[lang][0], lang) for lang in sources)
+    paths = [
+        ('example', 'Understand the story', '先看主线', 'Follow one conversation across two goals.', '用一段对话看懂目标与尝试。'),
+        ('evidence', 'Explore the implementation', '了解实现', 'Start with evidence, then linking and recovery.', '从原始证据读到关联与恢复。'),
+        ('boundaries', 'Assess integration', '检查接入边界', 'Check current limits before planning a consumer.', '先看当前限制，再规划下游接入。'),
+    ]
+    intro += '<nav class="reading-paths" aria-label="Reading paths / 阅读入口">'
+    for target, en, zh, de, dz in paths:
+        intro += f'<a href="#{target}"><strong>{bilingual(en, zh)} <span aria-hidden="true">→</span></strong><span>{bilingual(de, dz)}</span></a>'
+    intro += '</nav>'
     sections = []
     visuals = render_visuals(bilingual)
     figures = {
@@ -44,7 +65,7 @@ def render():
     }
     for i, key in enumerate(IDS):
         heading = bilingual(*(sources[lang][1][i][0] for lang in sources))
-        body = ''.join(render_body(sources[lang][1][i][1], lang) for lang in sources)
+        body = ''.join(render_body(sources[lang][1][i][1], lang, key) for lang in sources)
         if key in visuals:
             body = visuals[key] + body
         if key in figures:
