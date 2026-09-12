@@ -6,6 +6,9 @@
 
   const I18N = {
     en: {
+      "tg.title": "Session, Atom, Task and Attempt · xskill Wiki",
+      "tg.entry": "Session → Task → Attempt",
+      "tg.description": "Read the task graph reference: evidence, goal linking, attempts, outcomes and recovery →",
       /* ---- shared nav / chrome ---- */
       "nav.howitworks": "How it works",
       "nav.concepts": "Concepts",
@@ -428,6 +431,9 @@
     },
 
     zh: {
+      "tg.title": "Session、Atom、Task 与 Attempt · xskill Wiki",
+      "tg.entry": "Session → Task → Attempt",
+      "tg.description": "查看任务图方案：原始证据、目标关联、执行尝试、结果判断与恢复 →",
       "nav.howitworks": "工作原理",
       "nav.concepts": "概念",
       "nav.agents": "支持的 Agent",

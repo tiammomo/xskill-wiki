@@ -1,0 +1,58 @@
+/* Task graph reference: reuse the site's palette and document layout. */
+html[lang="en"] [data-doc-lang="zh"],
+html[lang="zh-CN"] [data-doc-lang="en"] { display: none !important; }
+.task-hero .wiki-hero__inner { max-width: 980px; padding-bottom: 30px; }
+.task-hero h1 { max-width: 850px; margin-inline: auto; line-height: 1.18; }
+.task-hero .section__sub { max-width: 750px; }
+.task-meta { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:20px 0; }
+.task-meta > span { border:1px solid #e7c98f; background:#fffaf0; border-radius:999px; padding:5px 12px; font-size:13px; }
+.task-breadcrumb { margin-bottom:20px; color:var(--sea-deep); font-size:14px; }
+.task-breadcrumb a { color:inherit; font-weight:700; }
+.task-shell .doc-sec { scroll-margin-top:95px; }
+.task-shell .doc-sec h2 { line-height:1.35; }
+.task-shell .doc-sec h3 { font-size:20px; margin:26px 0 12px; color:var(--sea-deep); line-height:1.4; }
+.task-shell .doc-sec p, .task-shell .doc-sec li { line-height:1.85; }
+.task-shell .doc-sec ul { padding-left:23px; margin:12px 0 18px; }
+.task-shell .doc-sec li { margin-bottom:8px; }
+.task-shell .doc-sec code { white-space:normal; overflow-wrap:anywhere; }
+.task-table { overflow-x:auto; margin:18px 0; border-radius:12px; }
+.task-table .doc-table { margin:0; min-width:480px; }
+.task-table:focus-visible, .task-diagram:focus-visible { outline:3px solid var(--sea); outline-offset:3px; }
+.task-diagram { overflow-x:auto; border:1px solid #d6e8df; border-radius:16px; margin:22px 0 10px; background:#fffdf7; }
+.task-diagram img { display:block; width:100%; min-width:660px; height:auto; }
+.task-caption { font-size:13px !important; color:var(--ink-soft) !important; }
+.task-shell .wiki-toc__card { max-height:calc(100vh - 112px); overflow-y:auto; }
+.task-shell .wiki-toc__card nav a { font-size:13px; padding:6px 9px; }
+.task-status { border-top:4px solid var(--coral); }
+.task-footer { text-align:center; padding:30px 20px 55px; color:var(--ink-soft); }
+.skip-link { position:fixed; top:8px; left:8px; padding:12px; z-index:100; background:white; color:var(--sea-deep); transform:translateY(-160%); }
+.skip-link:focus { transform:translateY(0); }
+.task-jump { display:block; margin:18px 0 4px; padding:15px 18px; border:1px solid #bfe7e6; border-radius:12px; background:#eaf6f7; }
+@media(max-width:900px) {
+  .task-shell .wiki-toc__card { max-height:none; }
+  .task-shell .wiki-toc__card nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:520px) {
+  .task-hero { padding-top:25px; }
+  .task-hero h1 { font-size:32px; }
+  .task-hero .wiki-hero__inner { padding-bottom:10px; }
+  .task-shell .doc-sec { padding:24px 18px; }
+  .task-shell .doc-sec h2 { font-size:24px; }
+  .task-meta { font-size:12px; }
+  .task-diagram img { min-width:660px; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+@media print {
+  .nav-wrap,.sky-decor,.wiki-toc,.skip-link,.lang { display:none !important; }
+  .wiki-shell { display:block; max-width:none; padding:0; }
+  .doc-sec { box-shadow:none; border:none; break-inside:auto; }
+  .task-diagram,.task-table { overflow:visible; }
+  .task-diagram img,.task-table .doc-table { min-width:0; }
+}
+.task-shell main { min-width:0; }
+.task-shell figure { margin:22px 0; }
+/* Long reference sections stay readable even before an observer fires. */
+.task-shell .doc-sec.reveal { opacity:1; transform:none; }
+
+.task-scroll-hint { display:none; }
+@media(max-width:900px) { .task-scroll-hint { display:block; } }

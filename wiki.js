@@ -1,7 +1,7 @@
 /* xskill wiki — sidebar active-section highlight + section reveal + TOC fold */
 (function () {
   "use strict";
-  const links = Array.prototype.slice.call(document.querySelectorAll(".wiki-toc nav a"));
+  const links = Array.prototype.slice.call(document.querySelectorAll('.wiki-toc nav a[href^="#"]'));
   const map = {};
   links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
 

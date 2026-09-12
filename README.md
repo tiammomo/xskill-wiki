@@ -88,3 +88,33 @@ python3 -m http.server 8009 --bind 127.0.0.1 --directory .
 ```
 
 改完推 `main` 即可上线。本机工作区有未提交改动时，自动同步会拒绝拉取，以免冲掉正在改的东西。
+
+## Task graph architecture reference
+
+`task-graph.html` is the bilingual public reference for Session, Atom, Task and
+Attempt. The Wiki sidebar and Architecture section link to it. The site remains
+static and needs no build step to serve.
+
+Edit the paired sources in `docs/architecture/session-task-attempt.en.md` and
+`docs/architecture/session-task-attempt.zh.md`. Keep the 13 sections aligned, then
+regenerate the committed HTML with Python 3 and `Markdown==3.10.2` installed:
+
+```sh
+python3 scripts/render_task_graph_docs.py
+python3 scripts/render_task_graph_docs.py --check
+python3 scripts/check_task_graph_docs.py
+```
+
+The checker also uses Node to check the shared JavaScript syntax. Diagram sources
+are the three `assets/task-graph-*.svg` files. Update both languages and diagrams
+when behavior changes; the reference explicitly dates its implementation review.
+
+For a local preview, serve this directory:
+
+```sh
+python3 -m http.server 8009 --bind 127.0.0.1
+```
+
+Then open `http://127.0.0.1:8009/task-graph.html`. Before publishing, check English
+and Chinese at desktop and mobile widths, section links, diagram/table scrolling,
+and the entry from `/wiki.html`.
