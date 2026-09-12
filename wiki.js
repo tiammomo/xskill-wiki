@@ -1,6 +1,13 @@
 /* xskill wiki — sidebar active-section highlight + section reveal + TOC fold */
 (function () {
   "use strict";
+  const responsiveToc = document.querySelector("[data-responsive-toc]");
+  if (responsiveToc) {
+    const narrow = window.matchMedia("(max-width: 900px)");
+    function sizeToc() { responsiveToc.open = !narrow.matches; }
+    sizeToc();
+    narrow.addEventListener("change", sizeToc);
+  }
   const links = Array.prototype.slice.call(document.querySelectorAll('.wiki-toc nav a[href^="#"]'));
   const map = {};
   links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });

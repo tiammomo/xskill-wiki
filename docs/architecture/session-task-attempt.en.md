@@ -1,10 +1,10 @@
 # From session evidence to a task graph: Session, Atom, Task and Attempt
 
-xskill organizes time-ordered assistant conversations into a graph of user goals and execution attempts. It preserves source evidence while distinguishing continuous intent segments, logical goals and individual executions. This makes resumed goals, retries, user corrections and resource usage independently traceable.
+xskill extracts two things from assistant conversations: what the user wants to achieve, and what the assistant has tried. The original records remain traceable when the user changes topic, returns to an earlier goal or asks for another attempt.
 
-The task graph is a separate semantic processing branch. It reads Sessions and Atoms to build Tasks, Attempts and their relationships. It does not silently rewrite consumed Atoms during linking, and its existence does not mean the production Skill pipeline already consumes complete task-level inputs.
+Start with four questions: **Session records what was said. Atom marks a continuous stretch of intent. Task identifies the goal. Attempt distinguishes one execution from another.**
 
-This reference describes object responsibilities, processing, persistence and current boundaries. Behavior was checked on September 12, 2026. Optional designs and incompletely supported cases are listed separately at the end.
+The task graph reads Sessions and Atoms to organize goals and executions separately. The current Skill pipeline does not yet fully consume task-level inputs. This reference describes behavior checked on September 12, 2026; unfinished capabilities are listed at the end.
 
 ## Why a task graph is needed
 
@@ -90,7 +90,13 @@ Code checks ranges, ordering, bounds, coverage and overlap for the current input
 
 ### Evidence coordinates
 
-Current Atom offsets are one-based line numbers, using a half-open interval that includes the start and excludes the end. `[7, 11)` covers lines 7 through 10.
+Atom coordinates use line numbers starting at 1. The start is included and the end is excluded: a half-open interval.
+
+> **Reading a range**
+>
+> Covered lines = end line − start line
+>
+> `[7, 11)` includes lines 7, 8, 9 and 10: `11 − 7 = 4` lines. The next segment starts at line 11, leaving neither a gap nor an overlap.
 
 The first complete split begins at line 1; the final segment ends at the total line count plus one. Incremental splitting covers the range after the current resume position. Neighbor references preserve segment order.
 
@@ -199,6 +205,32 @@ xskill separates execution usage incurred by the original assistant completing u
 Raw usage events have stable identities. Duplicate ingestion must have identical content. Unknown values remain null with reasons instead of becoming zero.
 
 An event can be directly attributed, explicitly shared or left as an unattributed balance. Current shared allocation uses confirmed primary evidence line spans and the largest-remainder method to conserve integer Token totals.
+
+### How allocation works
+
+These formulas describe shared allocation of one known usage event and one Token field. Compute execution and xskill_processing separately. Include any unattributed portion as an allocation target.
+
+> **Allocate by evidence span**
+>
+> Unrounded share = event Token total × target weight ÷ sum of all target weights
+>
+> Weights come from confirmed primary evidence spans. A portion without reliable ownership stays in the unattributed balance.
+
+For example, one event contains **101 Tokens**, two Attempts have weights **3 and 2**, and there is no unattributed portion:
+
+| Step | Attempt A | Attempt B |
+| --- | --- | --- |
+| Calculate proportional shares | 101 × 3 ÷ 5 = 60.6 | 101 × 2 ÷ 5 = 40.4 |
+| Round down | 60 | 40 |
+| Give the remaining Token to the larger fractional remainder | **61** | **40** |
+
+This is the largest remainder method: allocate the integer portions, then distribute remaining Tokens in descending order of fractional remainder. Ties use a stable order so repeated calculations agree.
+
+> **Check conservation**
+>
+> Attributed Tokens + unattributed Tokens = original event Tokens
+>
+> Here, `61 + 40 + 0 = 101`. An unknown source value stays unknown; this equality must not turn missing data into zero.
 
 The source total can be measured while an Attempt share remains a method-defined allocation, not a precise measurement of that execution. Session, Task and Attempt totals are different views of the same fact and must not be added again.
 

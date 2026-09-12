@@ -8,11 +8,11 @@
 <a class="skip-link" href="#reference"><span data-doc-lang="en">Skip to reference</span><span data-doc-lang="zh">跳到正文</span></a>
 <header class="nav-wrap"><nav class="nav"><a class="brand" href="index.html"><span class="brand__coco">🥥</span><span class="brand__name">xskill<span class="brand__dot">.wiki</span></span></a><ul class="nav__links"><li><a href="wiki.html">Wiki</a></li></ul><div class="nav__actions"><div class="lang" role="group" aria-label="Language / 语言"><button class="lang__btn" type="button" data-set-lang="en">EN</button><button class="lang__btn" type="button" data-set-lang="zh">中</button></div></div></nav></header>
 <section class="wiki-hero task-hero"><div class="wiki-hero__inner"><div class="task-breadcrumb"><a href="wiki.html">Wiki</a> / <span data-doc-lang="en">Architecture reference</span><span data-doc-lang="zh">架构参考</span></div><span class="kicker">Session → Atom → Task → Attempt</span><h1><span data-doc-lang="en">From sessions to tasks and attempts</span><span data-doc-lang="zh">从会话到任务与执行尝试</span></h1><p class="section__sub"><span data-doc-lang="en">Follow the evidence, understand goal identity, and trace each execution.</span><span data-doc-lang="zh">沿着证据理解用户目标，追溯每一次执行。</span></p><div class="task-meta"><span><span data-doc-lang="en">Checked: September 12, 2026</span><span data-doc-lang="zh">实现核对：2026 年 9 月 12 日</span></span><span><span data-doc-lang="en">Current behavior and known boundaries</span><span data-doc-lang="zh">当前实现与已知边界</span></span></div></div></section>
-<div class="wiki-shell task-shell"><aside class="wiki-toc"><div class="wiki-toc__card"><h4><span data-doc-lang="en">On this page</span><span data-doc-lang="zh">本页目录</span></h4><nav aria-label="Contents / 目录"><a href="#why"><span data-doc-lang="en">Why a task graph</span><span data-doc-lang="zh">为什么需要任务图</span></a><a href="#concepts"><span data-doc-lang="en">Four objects</span><span data-doc-lang="zh">四个核心对象</span></a><a href="#example"><span data-doc-lang="en">Complete example</span><span data-doc-lang="zh">完整示例</span></a><a href="#evidence"><span data-doc-lang="en">Source evidence</span><span data-doc-lang="zh">来源与证据</span></a><a href="#atoms"><span data-doc-lang="en">Session → Atom</span><span data-doc-lang="zh">Session → Atom</span></a><a href="#linking"><span data-doc-lang="en">Atom → Task</span><span data-doc-lang="zh">Atom → Task</span></a><a href="#attempts"><span data-doc-lang="en">Task and Attempt</span><span data-doc-lang="zh">Task 与 Attempt</span></a><a href="#outcomes"><span data-doc-lang="en">Outcomes and feedback</span><span data-doc-lang="zh">结果与反馈</span></a><a href="#recovery"><span data-doc-lang="en">Persistence and recovery</span><span data-doc-lang="zh">保存与恢复</span></a><a href="#usage"><span data-doc-lang="en">Usage and cost</span><span data-doc-lang="zh">用量与成本</span></a><a href="#performance"><span data-doc-lang="en">Performance</span><span data-doc-lang="zh">性能边界</span></a><a href="#boundaries"><span data-doc-lang="en">Current boundaries</span><span data-doc-lang="zh">当前能力边界</span></a><a href="#faq"><span data-doc-lang="en">FAQ</span><span data-doc-lang="zh">常见问题</span></a></nav></div></aside><main id="reference"><section class="doc-sec"><h2><span data-doc-lang="en">Overview</span><span data-doc-lang="zh">方案概览</span></h2><div data-doc-lang="en"><p>xskill organizes time-ordered assistant conversations into a graph of user goals and execution attempts. It preserves source evidence while distinguishing continuous intent segments, logical goals and individual executions. This makes resumed goals, retries, user corrections and resource usage independently traceable.</p>
-<p>The task graph is a separate semantic processing branch. It reads Sessions and Atoms to build Tasks, Attempts and their relationships. It does not silently rewrite consumed Atoms during linking, and its existence does not mean the production Skill pipeline already consumes complete task-level inputs.</p>
-<p>This reference describes object responsibilities, processing, persistence and current boundaries. Behavior was checked on September 12, 2026. Optional designs and incompletely supported cases are listed separately at the end.</p></div><div data-doc-lang="zh"><p>xskill 通过任务图，把按时间记录的助手会话整理为围绕用户目标组织的工作过程。它保留原始证据，区分连续意图片段、逻辑目标和执行尝试，使目标恢复、失败重试、用户纠正及资源消耗能够被分别追踪。</p>
-<p>任务图是一条独立的语义处理支路。它读取 Session 和 Atom，构建 Task、Attempt 及其关系，不在关联过程中隐式改写已经消费的 Atom，也不等同于 Skill 生成流水线已经完整采用了任务级输入。</p>
-<p>本文说明各对象的职责、处理过程、持久化规则和当前边界。实现行为核对于 2026 年 9 月 12 日；可选设计与尚未完整支持的场景在文末单独说明。</p></div></section><section id="why" class="doc-sec "><h2><span data-doc-lang="en">Why a task graph is needed</span><span data-doc-lang="zh">为什么需要任务图</span></h2><div data-doc-lang="en"><p>A single assistant session can contain several goals, while one goal can continue across sessions. A user may switch from goal A to goal B and later return to A. One goal may also involve failure, correction and another execution.</p>
+<div class="wiki-shell task-shell"><aside class="wiki-toc"><details class="wiki-toc__card" data-responsive-toc open><summary><span data-doc-lang="en">On this page</span><span data-doc-lang="zh">本页目录</span></summary><nav aria-label="Contents / 目录"><a href="#why"><span data-doc-lang="en">Why a task graph</span><span data-doc-lang="zh">为什么需要任务图</span></a><a href="#concepts"><span data-doc-lang="en">Four objects</span><span data-doc-lang="zh">四个核心对象</span></a><a href="#example"><span data-doc-lang="en">Complete example</span><span data-doc-lang="zh">完整示例</span></a><a href="#evidence"><span data-doc-lang="en">Source evidence</span><span data-doc-lang="zh">来源与证据</span></a><a href="#atoms"><span data-doc-lang="en">Session → Atom</span><span data-doc-lang="zh">Session → Atom</span></a><a href="#linking"><span data-doc-lang="en">Atom → Task</span><span data-doc-lang="zh">Atom → Task</span></a><a href="#attempts"><span data-doc-lang="en">Task and Attempt</span><span data-doc-lang="zh">Task 与 Attempt</span></a><a href="#outcomes"><span data-doc-lang="en">Outcomes and feedback</span><span data-doc-lang="zh">结果与反馈</span></a><a href="#recovery"><span data-doc-lang="en">Persistence and recovery</span><span data-doc-lang="zh">保存与恢复</span></a><a href="#usage"><span data-doc-lang="en">Usage and cost</span><span data-doc-lang="zh">用量与成本</span></a><a href="#performance"><span data-doc-lang="en">Performance</span><span data-doc-lang="zh">性能边界</span></a><a href="#boundaries"><span data-doc-lang="en">Current boundaries</span><span data-doc-lang="zh">当前能力边界</span></a><a href="#faq"><span data-doc-lang="en">FAQ</span><span data-doc-lang="zh">常见问题</span></a></nav></details></aside><main id="reference"><section class="doc-sec"><h2><span data-doc-lang="en">Overview</span><span data-doc-lang="zh">方案概览</span></h2><div data-doc-lang="en"><p>xskill extracts two things from assistant conversations: what the user wants to achieve, and what the assistant has tried. The original records remain traceable when the user changes topic, returns to an earlier goal or asks for another attempt.</p>
+<p>Start with four questions: <strong>Session records what was said. Atom marks a continuous stretch of intent. Task identifies the goal. Attempt distinguishes one execution from another.</strong></p>
+<p>The task graph reads Sessions and Atoms to organize goals and executions separately. The current Skill pipeline does not yet fully consume task-level inputs. This reference describes behavior checked on September 12, 2026; unfinished capabilities are listed at the end.</p></div><div data-doc-lang="zh"><p>xskill 从助手会话中整理出两件事：用户想完成什么，以及助手为此做过哪些尝试。即使用户中途换话题、回到旧问题，或要求重试，也能沿着原始记录追溯过程。</p>
+<p>先记住四个问题：<strong>Session 记录聊过什么，Atom 标出连续在做什么，Task 说明要完成什么，Attempt 区分这一次怎么做。</strong></p>
+<p>任务图读取 Session 和 Atom，单独组织目标与执行关系。当前 Skill 生成链路尚未完整采用任务级输入。本文按 2026 年 9 月 12 日核对的实现说明行为，未完成的能力集中列在文末。</p></div></section><section id="why" class="doc-sec "><h2><span data-doc-lang="en">Why a task graph is needed</span><span data-doc-lang="zh">为什么需要任务图</span></h2><div data-doc-lang="en"><p>A single assistant session can contain several goals, while one goal can continue across sessions. A user may switch from goal A to goal B and later return to A. One goal may also involve failure, correction and another execution.</p>
 <p>Grouping only by session mixes unrelated goals. Grouping only by messages or continuous segments cannot represent a goal resumed later. Keeping only a final summary loses the failed approach, execution relationships and the evidence behind an outcome.</p>
 <p>The task graph preserves the timeline while adding two views: which evidence serves the same goal, and which execution attempt that evidence belongs to.</p></div><div data-doc-lang="zh"><p>一次助手会话可能包含多个目标，同一个目标也可能在多个会话中延续。用户可以在处理目标 A 的过程中转向目标 B，随后回到 A；同一目标还可能经历失败、纠正与重新执行。</p>
 <p>仅按会话组织数据，容易把不同目标合在一起。仅按消息或连续片段组织数据，则难以表达非连续的目标恢复。只保留最终摘要，又会丢失失败经过、执行关系以及判断结果的具体依据。</p>
@@ -229,7 +229,12 @@
 <p>User turns are candidate boundaries, not mandatory cuts. Several turns can share a continuous intent, and a single Atom can preserve retries or corrections for the Attempt layer to interpret later.</p>
 <p>Code checks ranges, ordering, bounds, coverage and overlap for the current input. Summary quality needs separate evaluation: valid ranges do not establish a faithful summary.</p>
 <h3>Evidence coordinates</h3>
-<p>Current Atom offsets are one-based line numbers, using a half-open interval that includes the start and excludes the end. <code>[7, 11)</code> covers lines 7 through 10.</p>
+<p>Atom coordinates use line numbers starting at 1. The start is included and the end is excluded: a half-open interval.</p>
+<blockquote>
+<p><strong>Reading a range</strong></p>
+<p>Covered lines = end line − start line</p>
+<p><code>[7, 11)</code> includes lines 7, 8, 9 and 10: <code>11 − 7 = 4</code> lines. The next segment starts at line 11, leaving neither a gap nor an overlap.</p>
+</blockquote>
 <p>The first complete split begins at line 1; the final segment ends at the total line count plus one. Incremental splitting covers the range after the current resume position. Neighbor references preserve segment order.</p>
 <p>Evidence ranges also need a source revision and content digest. A file still existing does not mean the content behind an old reference remains valid.</p>
 <h3>Consumed evidence and appended output</h3>
@@ -239,7 +244,12 @@
 <p>用户回合是候选边界，不是必须切分的命令。多个回合可以属于一个连续意图；同一个 Atom 内也可以保留后续由 Attempt 层解释的重试或纠正。</p>
 <p>程序检查范围是否有效、顺序是否正确、是否越界，以及本轮输入是否无遗漏、无重叠地覆盖。语义摘要的质量需要独立评价，区间校验通过并不证明摘要准确。</p>
 <h3>证据坐标</h3>
-<p>当前 Atom 的起止位置使用从 1 开始的行号，采用包含起点、不包含终点的半开区间。范围 <code>[7, 11)</code> 对应第 7 至第 10 行。</p>
+<p>Atom 用行号标出证据的位置，行号从 1 开始。区间包含起点，不包含终点，称为“半开区间”。</p>
+<blockquote>
+<p><strong>区间怎样读</strong></p>
+<p>覆盖行数 = 结束行号 − 开始行号</p>
+<p><code>[7, 11)</code> 包含第 7、8、9、10 行，共 <code>11 − 7 = 4</code> 行。相邻片段从第 11 行开始，既不漏行，也不重复。</p>
+</blockquote>
 <p>首次完整拆分从第 1 行开始，末段结束位置为总行数加 1；增量拆分覆盖本轮续接位置之后的范围。前后片段通过引用保持时间顺序。</p>
 <p>证据范围还需要绑定来源版本和内容摘要。文件仍存在，不代表旧引用中的内容仍然有效。</p>
 <h3>已消费证据与续写</h3>
@@ -259,7 +269,7 @@
 <p>任务构建会检查已有来源与片段版本，复用未变化的已确认归属及稳定身份，避免每轮重建都给历史任务重新编号。</p>
 <p>需要重新判断的片段，先按 TaskScope 限制范围，再召回候选任务。</p>
 <h3>有界候选与关联规则</h3>
-<p>当前默认 linker 使用有界倒排候选和同 Session 最近任务，限制片段词项、候选数量和任务锚点大小。任务锚点是用于检索与比较的有限特征集合，不是持续增长的整份任务正文。</p>
+<p>当前默认关联器（linker）先用片段中的词查找相关旧任务，并参考同一 Session 中最近的任务。它限制检索词、候选任务和任务锚点的数量。任务锚点是供检索比较的一小组特征，避免反复读取整份历史正文。</p>
 <p>明确的继续、重试或纠正信号仍需结合候选匹配判断。只有最佳候选满足门槛，并与次优候选拉开足够差距，才自动复用已有 Task。</p>
 <p>相似内容本身不构成目标相同的证明。普通相似片段在不能确认时，可以建立独立的已确认主要 Task，同时保留指向相似旧任务的待确认关系。</p>
 <p>默认关联不是全量两两模型聚类，也不应被描述为已经默认使用向量召回或 LLM 裁决。</p>
@@ -398,11 +408,11 @@
 <p>Confirmations, rejections, merges, splits and state changes are stored as ordered, identified override events, validated and rebuilt under a scope lock. Automatic processing must not overwrite recorded human decisions.</p>
 <p>Merging retains a canonical Task and aliases or tombstones for old identities. Splitting and moving must preserve Attempt ownership and confirmed relationships. Current operations cannot arbitrarily cut an Attempt; finer execution-boundary editing requires additional design.</p>
 <p>Human events must not silently disappear when a source is deleted. Invalid references remain as stale facts.</p></div><div data-doc-lang="zh"><h3>独立后台处理</h3>
-<p>Task 图通过独立 worker 消费持久变更队列。队列记录来源或范围需要重新处理，并带有版本，避免旧一轮完成确认清掉处理期间新到达的更新。</p>
+<p>后台任务（worker）从持久队列中领取需要重新处理的来源或范围。每项工作带有版本：这一轮只能确认自己领取的版本，处理期间新到达的更新仍留在队列里。</p>
 <p>首次启用时可以分批回填历史来源；算法或关键参数变化后，可以安排范围级重建。暂停 Task 图不应删除来源证据、人工修正或原始用量。</p>
 <h3>不可变版本与查询投影</h3>
-<p>任务图以 generation 表示一版完整结果，使用不可变 manifest 和内容寻址分片保存。未变化分片可以复用，当前指针通过原子切换发布新版本。</p>
-<p>SQLite 提供任务查询投影。发布流程依次验证必要事实、写完任务图内容、切换当前指针、在事务中更新范围投影，最后按版本确认队列工作。</p>
+<p>每版完整任务图称为一个 generation。清单（manifest）记录这一版使用哪些数据分片；分片按内容摘要标识，写好后不再改动，内容未变就能复用。最后切换“当前版本”指针，让读者看到完整的新版本。</p>
+<p>SQLite 保存便于检索的任务副本，称为查询投影。发布流程依次验证必要事实、写完任务图内容、切换当前指针、在事务中更新范围投影，最后按版本确认队列工作。</p>
 <p>文件发布和数据库更新不是天然的跨介质事务。发生中断后，系统依靠当前指针、generation 身份、保留的待处理记录和幂等处理恢复一致状态。</p>
 <p>例如，当前指针已经切换但 SQLite 更新失败时，工作不能被确认完成，后续需要补齐投影。投影写完而确认尚未完成时，重复处理不能重复创建用量事实或使未变化任务重新编号。</p>
 <h3>人工修正</h3>
@@ -411,9 +421,89 @@
 <p>来源已消失时，人工事件也不应被静默删除；失效引用保留为过期事实。</p></div><figure><div data-doc-lang="en"><div class="task-diagram" tabindex="0" role="region" aria-label="Validate a new generation before switching the visible pointer. Queue acknowledgements preserve concurrently arriving work."><img src="assets/task-graph-recovery.svg" alt="Validate a new generation before switching the visible pointer. Queue acknowledgements preserve concurrently arriving work." loading="lazy"></div><figcaption class="task-caption">Validate a new generation before switching the visible pointer. Queue acknowledgements preserve concurrently arriving work.</figcaption></div><div data-doc-lang="zh"><div class="task-diagram" tabindex="0" role="region" aria-label="校验新一代数据后才切换可见指针；队列确认保留处理期间新增的工作。"><img src="assets/task-graph-recovery.svg" alt="校验新一代数据后才切换可见指针；队列确认保留处理期间新增的工作。" loading="lazy"></div><figcaption class="task-caption">校验新一代数据后才切换可见指针；队列确认保留处理期间新增的工作。</figcaption></div><p class="task-caption task-scroll-hint"><span data-doc-lang="en">On narrow screens, scroll the diagram sideways to see all relationships.</span><span data-doc-lang="zh">小屏幕可左右滑动结构图，查看完整关系。</span></p></figure></section><section id="usage" class="doc-sec "><h2><span data-doc-lang="en">Usage and cost attribution</span><span data-doc-lang="zh">用量与成本归因</span></h2><div data-doc-lang="en"><p>xskill separates execution usage incurred by the original assistant completing user goals from xskill_processing usage incurred by splitting, linking and analysis. Each plane is recorded, presented and conserved separately; neither should be conflated into one model-execution cost.</p>
 <p>Raw usage events have stable identities. Duplicate ingestion must have identical content. Unknown values remain null with reasons instead of becoming zero.</p>
 <p>An event can be directly attributed, explicitly shared or left as an unattributed balance. Current shared allocation uses confirmed primary evidence line spans and the largest-remainder method to conserve integer Token totals.</p>
+<h3>How allocation works</h3>
+<p>These formulas describe shared allocation of one known usage event and one Token field. Compute execution and xskill_processing separately. Include any unattributed portion as an allocation target.</p>
+<blockquote>
+<p><strong>Allocate by evidence span</strong></p>
+<p>Unrounded share = event Token total × target weight ÷ sum of all target weights</p>
+<p>Weights come from confirmed primary evidence spans. A portion without reliable ownership stays in the unattributed balance.</p>
+</blockquote>
+<p>For example, one event contains <strong>101 Tokens</strong>, two Attempts have weights <strong>3 and 2</strong>, and there is no unattributed portion:</p>
+<div class="task-table" tabindex="0" role="region" aria-label="Scrollable reference table"><table class="doc-table">
+<thead>
+<tr>
+<th>Step</th>
+<th>Attempt A</th>
+<th>Attempt B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Calculate proportional shares</td>
+<td>101 × 3 ÷ 5 = 60.6</td>
+<td>101 × 2 ÷ 5 = 40.4</td>
+</tr>
+<tr>
+<td>Round down</td>
+<td>60</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Give the remaining Token to the larger fractional remainder</td>
+<td><strong>61</strong></td>
+<td><strong>40</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>This is the largest remainder method: allocate the integer portions, then distribute remaining Tokens in descending order of fractional remainder. Ties use a stable order so repeated calculations agree.</p>
+<blockquote>
+<p><strong>Check conservation</strong></p>
+<p>Attributed Tokens + unattributed Tokens = original event Tokens</p>
+<p>Here, <code>61 + 40 + 0 = 101</code>. An unknown source value stays unknown; this equality must not turn missing data into zero.</p>
+</blockquote>
 <p>The source total can be measured while an Attempt share remains a method-defined allocation, not a precise measurement of that execution. Session, Task and Attempt totals are different views of the same fact and must not be added again.</p></div><div data-doc-lang="zh"><p>xskill 区分原助手执行用户目标的 execution 用量，以及 xskill 自身拆分、关联和分析产生的 xskill_processing 用量。两种平面分别记录、展示和守恒，不能混为单一模型执行成本。</p>
 <p>原始用量事件具有稳定身份，重复摄取必须内容一致。未知值保留为空并说明原因，不能用零替代缺失。</p>
 <p>一条原始事件可以直接归属某个对象，也可以显式共享分摊，或保留未归因余额。当前共享分配使用已确认主要证据的行跨度，并通过最大余数法保持整数 Token 守恒。</p>
+<h3>分摊怎样算</h3>
+<p>以下公式解释同一条已知用量事件、同一种 Token 字段的共享分摊。execution 与 xskill_processing 分别计算；有未归因部分时，它也作为一个分摊对象。</p>
+<blockquote>
+<p><strong>按证据跨度分摊</strong></p>
+<p>某对象的未取整份额 = 事件 Token 总数 × 该对象的权重 ÷ 所有对象的权重之和</p>
+<p>权重来自已确认主要证据的行跨度。没有可靠归属的部分保留为未归因余额。</p>
+</blockquote>
+<p>例如，一条事件有 <strong>101 个 Token</strong>，两个 Attempt 的权重分别为 <strong>3 和 2</strong>，且没有未归因部分：</p>
+<div class="task-table" tabindex="0" role="region" aria-label="可横向滚动的参考表格"><table class="doc-table">
+<thead>
+<tr>
+<th>步骤</th>
+<th>Attempt A</th>
+<th>Attempt B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>按比例计算</td>
+<td>101 × 3 ÷ 5 = 60.6</td>
+<td>101 × 2 ÷ 5 = 40.4</td>
+</tr>
+<tr>
+<td>先向下取整</td>
+<td>60</td>
+<td>40</td>
+</tr>
+<tr>
+<td>剩余 1 个分给小数部分较大者</td>
+<td><strong>61</strong></td>
+<td><strong>40</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>这就是最大余数法：先分配整数部分，再按小数余数从大到小补齐剩余 Token。余数相同时按稳定顺序处理，保证重复计算一致。</p>
+<blockquote>
+<p><strong>守恒检查</strong></p>
+<p>已归属 Token 之和 + 未归因 Token = 原始事件 Token</p>
+<p>本例为 <code>61 + 40 + 0 = 101</code>。原始值未知时仍保留未知，不套用这个等式把它当作零。</p>
+</blockquote>
 <p>来源总 Token 可以是实测，而 Attempt 分摊仍只是方法明确的分配结果，不代表逐执行成本已经精确测量。Session、Task 与 Attempt 的汇总是同一事实的不同视图，不能重复相加。</p></div></section><section id="performance" class="doc-sec "><h2><span data-doc-lang="en">Performance and complexity boundaries</span><span data-doc-lang="zh">性能与复杂度边界</span></h2><div data-doc-lang="en"><p>Bounded candidates and anchors, source caching, stable membership reuse and content-shard reuse reduce repeated reads and comparisons. They do not imply that every operation touches only new segments.</p>
 <p>Current construction still collects and sorts within a scope, and projections may be replaced at scope granularity. A local update can therefore still depend on historical scope size. Candidate bounds alone do not establish end-to-end complexity or a measured speedup.</p>
 <p>Incremental performance evaluation should record source reads, candidate comparisons, model calls, database writes, new shard bytes, memory and end-to-end latency. Optimizations must retain deletion, restart, override-replay and consistency checks.</p></div><div data-doc-lang="zh"><p>有界候选、有限锚点、来源缓存、稳定归属复用和内容分片复用，减少重复读取与比较。但这些机制不代表每个步骤都只处理新增片段。</p>

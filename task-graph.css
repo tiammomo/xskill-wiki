@@ -56,3 +56,19 @@ html[lang="zh-CN"] [data-doc-lang="en"] { display: none !important; }
 
 .task-scroll-hint { display:none; }
 @media(max-width:900px) { .task-scroll-hint { display:block; } }
+
+/* Keep the reference compact and make worked rules easy to scan. */
+.task-hero h1 { font-size:44px; }
+.task-hero .wiki-hero__inner { padding-top:24px; padding-bottom:12px; }
+.task-breadcrumb { margin-bottom:12px; }
+.task-meta { margin:14px 0; }
+.task-shell .doc-sec { box-shadow:0 4px 14px rgba(84,62,36,.07); }
+.task-shell .doc-sec blockquote { margin:20px 0; padding:18px 20px; background:#edf7f5; border-left:4px solid #397b80; border-radius:0 12px 12px 0; }
+.task-shell .doc-sec blockquote p:last-child { margin-bottom:0; }
+.task-shell .wiki-toc__card summary { cursor:pointer; font-size:14px; font-weight:700; color:var(--sea-deep); }
+.task-shell .wiki-toc__card[open] summary { margin-bottom:12px; }
+@media(max-width:900px) {
+  .task-hero h1 { font-size:32px; }
+  .task-shell { padding-top:20px; }
+  .task-shell .doc-sec blockquote { padding:14px; }
+}
